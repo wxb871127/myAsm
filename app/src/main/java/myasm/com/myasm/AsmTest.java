@@ -1,5 +1,7 @@
 package myasm.com.myasm;
 
+import android.util.Log;
+
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -29,10 +31,17 @@ public class AsmTest {
         InputStream is = new FileInputStream(srcFile);
         byte[] bytes = referHackWhenInit(is);
 
+        Log.e("xxxxx", bytes.toString());
 
-        File destFile = new File(destDir, "Test.class");
+
+        File destFile = new File("/sdcard/dest/Test2.class");
+        if (!destFile.exists()){
+            boolean r = destFile.createNewFile();
+            Log.e("xxxxxxx", "create file " + r);
+        }
         FileOutputStream fos = new FileOutputStream(destFile);
         fos.write(bytes);
+        fos.flush();
         fos.close();
 
     }
@@ -40,17 +49,20 @@ public class AsmTest {
     private static byte[] referHackWhenInit(InputStream inputStream) throws IOException {
         ClassReader cr = new ClassReader(inputStream);
         ClassWriter cw = new ClassWriter(cr, 0);
-        ClassVisitor cv = new ClassVisitor(Opcodes.ASM4, cw) {
+        ClassVisitor cv = new ClassVisitor(Opcodes.ASM5, cw) {
             @Override
             public MethodVisitor visitMethod(int access, final String name, String desc,
                                              String signature, String[] exceptions) {
 
                 MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
                 if ("method1".equals(name)) {
-                    mv = new MethodVisitor(Opcodes.ASM4, mv) {
+                    Log.e("xxxxxxx", "find method1");
+
+
+                    mv = new MethodVisitor(Opcodes.ASM5, mv) {
                         @Override
                         public void visitInsn(int opcode) {
-                            if (opcode == Opcodes.RETURN) {
+                            if (opcode <= Opcodes.RETURN) {
 //                                super.visitLdcInsn(Type.getType("Lcn/edu/zafu/hotpatch/asm/Hack"));
                                 super.visitLdcInsn("hello asm");
                             }

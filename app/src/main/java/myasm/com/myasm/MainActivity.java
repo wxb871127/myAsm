@@ -25,6 +25,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }else if(v.getId() == R.id.button3){
+            new AsmRegister().register();
         }
     }
 
